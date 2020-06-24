@@ -68,7 +68,7 @@ print(normalizowany)
 # usuwanie słów stopu
 s_words = nltk.corpus.stopwords.words('english')
 print('stop words:')
-print(stopwords)
+print(s_words[:5])
 normalizowany = normalizowany.apply(lambda x: ' '.join(word for word in x.split() if word not in set(s_words)))
 
 # tworzenie dodatkowej kolumny z przetworzonymi danymi
@@ -122,7 +122,6 @@ def przewidywanieFunkcji(SMS):
 
 # zbieranie danych wejściowych od użytkownika w celu sprawdzenia naszej funkcji
 user_input = input(
-    "Wpisz dowolną wiadomość (najlepiej spam lub ham) by sprawdzić czy nasza funkcja prawidłowo przewiduje dane \ n")
-process_input = normalizowany(user_input)
+    "Wpisz dowolną wiadomość (najlepiej spam lub ham) by sprawdzić czy nasza funkcja prawidłowo przewiduje dane: ")
 
-przewidywanieFunkcji(process_input)
+przewidywanieFunkcji(user_input)
