@@ -1,9 +1,6 @@
 import inline as inline
 import pandas as pd
-import re
 import nltk
-
-nltk.download('punkt')
 import numpy as np
 from sklearn.feature_extraction.text import CountVectorizer
 from nltk.corpus import stopwords
@@ -48,17 +45,6 @@ daneTreningu.reset_index(inplace=True)
 daneTreningu.drop(['index'], axis=1, inplace=True)
 daneTreningu.head()
 
-# wizualizacja danych (bo troche artyzmu nikomu nie zaszkodzi)
-# spam_words = ' '.join(list[tekst[tekst['Label'] == 1]['SMS']])
-# spamWC = WordCloud(width=600,height=512).generate(spam_words)
-
-# plt.figure(figsize= (10, 8), facecolor= 'k')
-# plt.imshow(spamWC)
-# plt.axis('off')
-# plt.tight_layout(pad=0)
-# plt.show()
-
-
 # przetwarzanie wstępne do treningu modelu
 # znaki interpunkcyjne
 normalizowany = tekst['SMS'].str.replace(r'[\W]+', ' ')
@@ -79,27 +65,14 @@ normalizowany = normalizowany.str.replace(r'^\s+|\s+?$', '')
 normalizowany = normalizowany.str.lower()
 print(normalizowany)
 
-X = normalizowany
-Y = tekst['Label']
-
 # usuwanie słów stopu
 s_words = nltk.corpus.stopwords.words('english')
-vector = CountVectorizer(stop_words=s_words)
 print('stop words:')
-print(s_words[:5])
+print(stopwords)
 normalizowany = normalizowany.apply(lambda x: ' '.join(word for word in x.split() if word not in set(s_words)))
 
-
-# funkcja przetwarzania wstępnego
-def przetwarzanieWstepne(SMS):
-    usunPunkt = "".join([word.lower() for word in SMS if word not in normalizowany])
-    tokenizacja = nltk.tokenize.word_tokenize(usunPunkt)
-    usunStopWords = [word for word in tokenizacja if word not in s_words]
-
 # tworzenie dodatkowej kolumny z przetworzonymi danymi
-tekst['przetworzone'] = tekst['SMS'].apply(lambda x: przetwarzanieWstepne(x))
-print(tekst['przetworzone'].head())
-
+tekst['przetworzone'] = normalizowany
 
 # Kategoryzowanie i liczenie tokenów
 def kategoryzacjaSlow():
@@ -113,15 +86,15 @@ def kategoryzacjaSlow():
             for word in SMS:
                 _slowaHam.append(word)
 
-    slowaHam = _slowaHam
-    slowaSpam = _slowaSpam
+        slowaSpam = _slowaSpam
+        slowaHam = _slowaHam
 
     return [slowaSpam, slowaHam]
 
 slowa = kategoryzacjaSlow()
 slowaHam = slowa[1]
 slowaSpam = slowa[0]
-#slowaSpam, slowaHam = kategoryzacjaSlow()
+slowaSpam, slowaHam = kategoryzacjaSlow()
 
 # sprawdzenie czy słowa się zapisały
 print('ham: {}'.format(slowaHam[:10]))
@@ -152,7 +125,4 @@ user_input = input(
     "Wpisz dowolną wiadomość (najlepiej spam lub ham) by sprawdzić czy nasza funkcja prawidłowo przewiduje dane \ n")
 process_input = normalizowany(user_input)
 
-przewidywanieFunkcji(process_input)
-
-process_input = przetwarzanieWstepne(user_input)
 przewidywanieFunkcji(process_input)
