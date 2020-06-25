@@ -51,7 +51,6 @@ daneTreningu.reset_index(inplace=True)
 daneTreningu.drop(['index'], axis=1, inplace=True) #usuwanie określonych etykiet z wiersza lub kolumny
 daneTreningu.head()
 
-
 # przetwarzanie wstępne do treningu modelu
 # znaki dolara itp
 normalizowany = tekst['SMS'].str.replace(r'\€|\¥|\$', 'pieniadz')
@@ -87,11 +86,8 @@ def przetwarzanieWstepne(SMS):
     return usunStopWords
 
 # tworzenie dodatkowej kolumny z przetworzonymi danymi
-tekst['przetworzone'] = tekst['SMS'].apply(lambda x: przetwarzanieWstepne(x))
+tekst['przetworzone'] = normalizowany.apply(lambda x: przetwarzanieWstepne(x))
 print(tekst['przetworzone'].head())
-
-#normalizowany = normalizowany.apply(lambda x: ' '.join(word for word in x.split() if word not in set(s_words)))
-#print(normalizowany)
 
 #sprawdzenie aktualnego stanu tekstu
 print('tekst:')
@@ -103,7 +99,7 @@ def kategoryzacjaSlow():
     _slowaHam = []
     for SMS in tekst['przetworzone'][tekst['Label'] == 'spam']:
         for words in SMS:
-            _slowaSpam.append(words)
+            _slowaSpam.append(words) #append dodaje pojedyńczy elemen do istniejącej listy
 
         for SMS in tekst['przetworzone'][tekst['Label'] == 'ham']:
             for word in SMS:
@@ -114,32 +110,35 @@ def kategoryzacjaSlow():
 
     return [slowaSpam, slowaHam]
 
-slowa = kategoryzacjaSlow()
-slowaHam = slowa[1]
-slowaSpam = slowa[0]
+#slowa = kategoryzacjaSlow()
+#slowaHam = slowa[1]
+#slowaSpam = slowa[0]
+#bibliografia - skąd pomysł na algorytm
+
 slowaSpam, slowaHam = kategoryzacjaSlow()
 
 # sprawdzenie czy słowa się zapisały
+print('wyniki kategoryzacji słow dla spam/ham')
 print('ham: {}'.format(slowaHam[:10]))
 print('spam: {}'.format(slowaSpam[:10]))
 
 
-# przewidywanie funkcji
+# funkcja przewidująca prawdopodobieństwo spam/ham
 def przewidywanieFunkcji(SMS):
     licznikSpam = 0
     licznikHam = 0
     for word in SMS:
         licznikSpam += slowaSpam.count(word)
         licznikHam += slowaHam.count(word)
-    print('*WYNIKI*')
 
+    print('WYNIKI')
     if licznikHam > licznikSpam:
-        precyzja = round(((licznikHam / (licznikHam + licznikSpam)) * 100))
+        precyzja = round((licznikHam / (licznikHam + licznikSpam) * 100), 2) #round zzwraca liczbę zmiennoprzecinkową
         print('wiadomość nie jest spamem na {} %'.format(precyzja))
     elif licznikHam == licznikSpam:
         print('wiadomość niestety może być spam')
     else:
-        precyzja = round(((licznikSpam / (licznikHam + licznikSpam)) * 100))
+        precyzja = round((licznikSpam / (licznikHam + licznikSpam) * 100), 2)
         print('wiadomość jest spamem na {} %'.format(precyzja))
 
 
