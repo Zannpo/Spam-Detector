@@ -53,13 +53,13 @@ daneTreningu.head()
 
 # przetwarzanie wstępne do treningu modelu
 # znaki dolara itp
-normalizowany = tekst['SMS'].str.replace(r'\€|\¥|\$', 'pieniadz')
+normalizowany = tekst['SMS'].str.replace(r'\€|\¥|\$', 'money')
 # numer tel
-normalizowany = normalizowany.str.replace(r'\d{3}-\d{3}-\d{3}', 'telefon')
+normalizowany = normalizowany.str.replace(r'\d{3}-\d{3}-\d{3}', 'phone')
 # numer sms
-normalizowany = normalizowany.str.replace(r'\d{4}', 'nrsms')
+normalizowany = normalizowany.str.replace(r'\d{4}', 'sms')
 # adres www
-normalizowany = normalizowany.str.replace('\b(\+\d{1,2}\s)?\d?[\-(.]?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}\b', 'stronaint')
+normalizowany = normalizowany.str.replace('\b(\+\d{1,2}\s)?\d?[\-(.]?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}\b', 'website')
 # usunięcie białych znaków (spacje w tekście, na początku i końcu tekstu)
 normalizowany = normalizowany.str.replace(r'[^\w\d\s]', ' ')
 normalizowany = normalizowany.str.replace(r'\s+', ' ')
@@ -123,26 +123,50 @@ print('ham: {}'.format(slowaHam[:10]))
 print('spam: {}'.format(slowaSpam[:10]))
 
 
-# funkcja przewidująca prawdopodobieństwo spam/ham
-def przewidywanieFunkcji(SMS):
-    licznikSpam = 0
-    licznikHam = 0
-    for word in SMS:
-        licznikSpam += slowaSpam.count(word)
-        licznikHam += slowaHam.count(word)
+# przewidywanie funkcji
+#def przewidywanieFunkcji(SMS):
+#    licznikSpam = 0
+#    licznikHam = 0
 
-    print('WYNIKI')
-    if licznikHam > licznikSpam:
-        precyzja = round((licznikHam / (licznikHam + licznikSpam) * 100), 2) #round zzwraca liczbę zmiennoprzecinkową
-        print('wiadomość nie jest spamem na {} %'.format(precyzja))
-    elif licznikHam == licznikSpam:
-        print('wiadomość niestety może być spam')
-    else:
-        precyzja = round((licznikSpam / (licznikHam + licznikSpam) * 100), 2)
-        print('wiadomość jest spamem na {} %'.format(precyzja))
+    #for word in SMS:
+     #   licznikSpam += slowaSpam.count(word)
+      #  licznikHam += slowaHam.count(word)
+
+#    for word in SMS:
+#        if(word in slowaSpam):
+#            licznikSpam = licznikSpam + 1
+#        if(word in slowaHam):
+#            licznikHam = licznikHam + 1
+#    print('*WYNIKI*')
+
+#    if licznikHam > licznikSpam:
+#        precyzja = round(((licznikHam/ (licznikHam + licznikSpam) * 100)))
+#        print('wiadomość nie jest spamem na {} %'.format(precyzja))
+#    elif licznikHam == licznikSpam:
+#        print('wiadomość niestety może być spam')
+#    else:
+#        precyzja = round(((licznikSpam / (licznikHam + licznikSpam) * 100 )))
+#        print('wiadomość jest spamem na {} %'.format(precyzja))
 
 
 # zbieranie danych wejściowych od użytkownika w celu sprawdzenia naszej funkcji
+licznikSpam = 0
+licznikHam = 0
 user_input = input("Wpisz dowolną wiadomość (najlepiej spam lub ham) by sprawdzić czy nasza funkcja prawidłowo przewiduje dane: ")
 przetwarzaneDane = przetwarzanieWstepne(user_input)
-przewidywanieFunkcji(przetwarzaneDane)
+#przewidywanieFunkcji(przetwarzaneDane)
+for word in user_input:
+        if(word in slowaSpam):
+            licznikSpam = licznikSpam + 1
+        if(word in slowaHam):
+            licznikHam = licznikHam + 1
+
+print('*WYNIKI*')
+if licznikHam > licznikSpam:
+       precyzja = round(((licznikHam/ (licznikHam + licznikSpam) * 100)))
+       print('wiadomość nie jest spamem na {} %'.format(precyzja))
+elif licznikHam == licznikSpam:
+       print('wiadomość niestety może być spam')
+else:
+       precyzja = round(((licznikSpam / (licznikHam + licznikSpam) * 100 )))
+       print('wiadomość jest spamem na {} %'.format(precyzja))
