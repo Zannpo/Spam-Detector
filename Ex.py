@@ -134,17 +134,16 @@ def przewidywanieFunkcji(SMS):
     print('*WYNIKI*')
 
     if licznikHam > licznikSpam:
-        precyzja = round((licznikHam / (licznikSpam + licznikSpam) * 100))
+        precyzja = round(((licznikHam / (licznikHam + licznikSpam)) * 100))
         print('wiadomość nie jest spamem na {} %'.format(precyzja))
     elif licznikHam == licznikSpam:
         print('wiadomość niestety może być spam')
     else:
-        precyzja = round((licznikSpam / (licznikHam + licznikSpam) * 100))
+        precyzja = round(((licznikSpam / (licznikHam + licznikSpam)) * 100))
         print('wiadomość jest spamem na {} %'.format(precyzja))
 
 
 # zbieranie danych wejściowych od użytkownika w celu sprawdzenia naszej funkcji
-user_input = input(
-    "Wpisz dowolną wiadomość (najlepiej spam lub ham) by sprawdzić czy nasza funkcja prawidłowo przewiduje dane: ")
-
-przewidywanieFunkcji(user_input)
+user_input = input("Wpisz dowolną wiadomość (najlepiej spam lub ham) by sprawdzić czy nasza funkcja prawidłowo przewiduje dane: ")
+przetwarzaneDane = przetwarzanieWstepne(user_input)
+przewidywanieFunkcji(przetwarzaneDane)
