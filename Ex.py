@@ -6,7 +6,9 @@ from sklearn.feature_extraction.text import CountVectorizer
 from nltk.corpus import stopwords
 from sklearn.model_selection import train_test_split
 import matplotlib.pyplot as plt
+import string
 
+nltk.download('punkt')
 nltk.download('stopwords')
 sciezkaplik = "datasets_spam.csv"
 
@@ -30,7 +32,7 @@ if (Suma_null_SMS == True or Suma_null_Label == True):
 else:
     print("Nie ma nulli")
 
-# train-test split- testowanie modelu
+# train-test split- testowanie modelu (mozna było by zastosować filtr Naive Bayes
 wszystkieSMS = tekst['SMS'].shape[0]
 indexTreningu, testIndex = list(), list()
 for i in range(tekst.shape[0]):
@@ -40,16 +42,19 @@ for i in range(tekst.shape[0]):
         testIndex += [i]
 daneTreningu = tekst.loc[indexTreningu]
 daneTestu = tekst.loc[testIndex]
+print('dane TESTU:')
+print(daneTestu)
+print('dane TRENINGU')
+print(daneTreningu)
 
 daneTreningu.reset_index(inplace=True)
-daneTreningu.drop(['index'], axis=1, inplace=True)
+daneTreningu.drop(['index'], axis=1, inplace=True) #usuwanie określonych etykiet z wiersza lub kolumny
 daneTreningu.head()
 
+
 # przetwarzanie wstępne do treningu modelu
-# znaki interpunkcyjne
-normalizowany = tekst['SMS'].str.replace(r'[\W]+', ' ')
 # znaki dolara itp
-normalizowany = normalizowany.str.replace(r'\€|\¥|\$', 'pieniadz')
+normalizowany = tekst['SMS'].str.replace(r'\€|\¥|\$', 'pieniadz')
 # numer tel
 normalizowany = normalizowany.str.replace(r'\d{3}-\d{3}-\d{3}', 'telefon')
 # numer sms
@@ -61,26 +66,44 @@ normalizowany = normalizowany.str.replace(r'[^\w\d\s]', ' ')
 normalizowany = normalizowany.str.replace(r'\s+', ' ')
 normalizowany = normalizowany.str.replace(r'^\s+|\s+?$', '')
 
-# przekształcanie wszystkiego w małe litery
-normalizowany = normalizowany.str.lower()
-print(normalizowany)
-
 # usuwanie słów stopu
 s_words = nltk.corpus.stopwords.words('english')
 print('stop words:')
 print(s_words[:5])
-normalizowany = normalizowany.apply(lambda x: ' '.join(word for word in x.split() if word not in set(s_words)))
+
+# znaki interpunkcyjne
+interpunkcja = string.punctuation
+print('interpunkcja')
+print(interpunkcja)
+
+# przekształcanie wszystkiego w małe litery
+#normalizowany = normalizowany.str.lower() #lower zwraca ciąg małych loiter z podanego ciągu
+#print(normalizowany)
+
+def przetwarzanieWstepne(SMS):
+    usunInterpunkcje="".join([word.lower() for word in SMS if word not in interpunkcja])
+    tokenizacja = nltk.tokenize.word_tokenize(usunInterpunkcje)
+    usunStopWords = [word for word in tokenizacja if word not in s_words]
+    return usunStopWords
 
 # tworzenie dodatkowej kolumny z przetworzonymi danymi
-tekst['przetworzone'] = normalizowany
+tekst['przetworzone'] = tekst['SMS'].apply(lambda x: przetwarzanieWstepne(x))
+print(tekst['przetworzone'].head())
+
+#normalizowany = normalizowany.apply(lambda x: ' '.join(word for word in x.split() if word not in set(s_words)))
+#print(normalizowany)
+
+#sprawdzenie aktualnego stanu tekstu
+print('tekst:')
+print(tekst)
 
 # Kategoryzowanie i liczenie tokenów
 def kategoryzacjaSlow():
     _slowaSpam = []
     _slowaHam = []
     for SMS in tekst['przetworzone'][tekst['Label'] == 'spam']:
-        for word in SMS:
-            _slowaSpam.append(word)
+        for words in SMS:
+            _slowaSpam.append(words)
 
         for SMS in tekst['przetworzone'][tekst['Label'] == 'ham']:
             for word in SMS:
